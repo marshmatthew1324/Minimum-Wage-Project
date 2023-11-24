@@ -1,0 +1,408 @@
+---
+title: "Minimum Wage project"
+output: html_document
+date: "2023-11-21"
+---
+
+```{r}
+
+#loading data
+library(tidyverse)
+
+limited_2011 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2011.q1-q4 722513 Limited-service restaurants.csv")
+ limited_2012 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2012.q1-q4 722513 Limited-service restaurants.csv")
+ limited_2013 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2013.q1-q4 722513 Limited-service restaurants.csv")
+ limited_2014 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2014.q1-q4 722513 Limited-service restaurants.csv")
+ limited_2015 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2015.q1-q4 722513 Limited-service restaurants.csv")
+ limited_2016 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2016.q1-q4 722513 NAICS 722513 Limited-service restaurants.csv")
+ limited_2017 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2017.q1-q4 722513 NAICS 722513 Limited-service restaurants.csv")
+ limited_2018 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2018.q1-q4 722513 NAICS 722513 Limited-service restaurants.csv")
+ limited_2019 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2019.q1-q4 722513 NAICS 722513 Limited-service restaurants.csv")
+ limited_2020 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2020.q1-q4 722513 NAICS 722513 Limited-service restaurants.csv")
+ limited_2021 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2021.q1-q4 722513 NAICS 722513 Limited-service restaurants.csv")
+ limited_2022 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2022.q1-q4 722513 NAICS 722513 Limited-service restaurants.csv")
+ limited_2023 <-
+   read_csv(
+     file = "C:\\Users\\marsh\\Downloads\\2023.q1-q1 722513 NAICS 722513 Limited-service restaurants.csv")
+#load("BLS_limited-service_rest.RData")
+counties_of_interest <- 
+  "((Wyandotte|Johnson|Leavenworth|Atchison|Bourbon|Cherokee|Brown) County, Kansas|(Buchanan|Platte|Clay|Jackson|Cass|Bates|Vernon|Barton|Jasper|Newton) County, Missouri)"
+#11/15: Temporarily removed Crawford
+columns_of_interest <- c(
+  "area_fips", "year", "qtr", "area_title", 
+  "qtrly_estabs_count", 
+  "month1_emplvl", "month2_emplvl", 
+  "month3_emplvl", "industry_code", "own_title")
+```
+```{r}
+limited_2011_f <- limited_2011[
+  str_detect(
+    string = limited_2011$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2012_f <- limited_2012[
+  str_detect(
+    string = limited_2012$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2013_f <- limited_2013[
+  str_detect(
+    string = limited_2013$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2014_f <- limited_2014[
+  str_detect(
+    string = limited_2014$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2015_f <- limited_2015[
+  str_detect(
+    string = limited_2015$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2016_f <- limited_2016[
+  str_detect(
+    string = limited_2016$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2017_f <- limited_2017[
+  str_detect(
+    string = limited_2017$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2018_f <- limited_2018[
+  str_detect(
+    string = limited_2018$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2019_f <- limited_2019[
+  str_detect(
+    string = limited_2019$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2020_f <- limited_2020[
+  str_detect(
+    string = limited_2020$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2021_f <- limited_2021[
+  str_detect(
+    string = limited_2021$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2022_f <- limited_2022[
+  str_detect(
+    string = limited_2022$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+
+limited_2023_f <- limited_2023[
+  str_detect(
+    string = limited_2023$area_title,
+    pattern = counties_of_interest
+  ), columns_of_interest]
+```
+
+```{r}
+limited_combined <- 
+  limited_2011_f |> 
+  add_row(limited_2012_f) |> 
+  add_row(limited_2013_f) |> 
+  add_row(limited_2014_f) |> 
+  add_row(limited_2015_f) |> 
+  add_row(limited_2016_f) |> 
+  add_row(limited_2017_f) |> 
+  add_row(limited_2018_f) |> 
+  add_row(limited_2019_f) |> 
+  add_row(limited_2020_f) |> 
+  add_row(limited_2021_f) |> 
+  add_row(limited_2022_f) |> 
+  add_row(limited_2023_f)
+limited_combined <- 
+  limited_combined[-which(0 == limited_combined, arr.ind = T)[1:12,1],]
+
+limited_combined_gather <- 
+  limited_combined |> 
+  gather(
+    key = "month", 
+    value = "emplvl",  
+    month1_emplvl, 
+    month2_emplvl, 
+    month3_emplvl
+  ) |> 
+#  Extract the numeric part from the "month" column
+  mutate(
+    month =
+      case_when(#Converting to numeric values
+        month == "month1_emplvl" ~ 1,
+        month == "month2_emplvl" ~ 2,
+        month == "month3_emplvl" ~ 3))
+##############################
+#Combine year, qtr, month ####
+##############################
+limited_combined_gather$date <- 
+  paste(
+    limited_combined_gather$month + 
+      (limited_combined_gather$qtr - 1) * 3, 
+    1, 
+    limited_combined_gather$year, sep = "/")
+
+limited_combined_gather$date <- 
+  as.Date(limited_combined_gather$date, format = "%m/%d/%Y")
+
+limited_combined_converted <- 
+  limited_combined_gather |> 
+  mutate(year_digit = (year + (qtr - 1) * (1/4) + (month - 1) * (1/12))) |> 
+  select(-qtr, -month, -own_title)
+
+limited_combined_pivot <- 
+  limited_combined_converted |> 
+  mutate(
+    emplvl_limited = emplvl,
+    region = case_when(
+      grepl(pattern = "Missouri", x = area_title) ~ "MO",
+      grepl(pattern = "Kansas", x = area_title) ~ "KS")) |> 
+  select(-industry_code, -emplvl)
+```
+
+```{r}
+setwd("C:\\Users\\marsh\\Downloads")
+Min_Wage_backup <- read_csv(
+  file = "min-wage-over-time.csv")
+
+Min_Wage <-
+  Min_Wage_backup |> 
+  mutate(date = as.Date(Date, format = "%m/%d/%Y")) |> 
+  filter(year(date) >= 2011) |>
+  mutate(year = year(date)) |> 
+  select(-Date)
+
+min_wage_limited <- 
+  left_join(
+    x = limited_combined_pivot,
+    y = Min_Wage |> select(-increase, -date),
+    by = c("year", "region"))
+
+min_wage_limited_increase <- 
+  left_join(
+    x = min_wage_limited,
+    y = Min_Wage)
+
+min_wage_limited_increase$increase[is.na(min_wage_limited_increase$increase)] <- 
+  0
+
+min_wage_limited_increase
+```
+
+```{r}
+install.packages("readxl")
+```
+
+```{r}
+### Adding data for total workforce
+library(readxl)
+#All_Ind_2023 <- read_csv("BLS/2023.q1-q1 10 10 Total, all industries.csv")
+All_Ind_2022 <- read_xlsx("laucnty22.xlsx")
+All_Ind_2021 <- read_xlsx("laucnty21.xlsx")
+All_Ind_2020 <- read_xlsx("laucnty20.xlsx")
+All_Ind_2019 <- read_xlsx("laucnty19.xlsx")
+All_Ind_2018 <- read_xlsx("laucnty18.xlsx")
+All_Ind_2017 <- read_xlsx("laucnty17.xlsx")
+All_Ind_2016 <- read_xlsx("laucnty16.xlsx")
+All_Ind_2015 <- read_xlsx("laucnty15.xlsx")
+All_Ind_2014 <- read_xlsx("laucnty14.xlsx")
+All_Ind_2013 <- read_xlsx("laucnty13.xlsx")
+All_Ind_2012 <- read_xlsx("laucnty12.xlsx")
+All_Ind_2011 <- read_xlsx("laucnty11.xlsx")
+```
+
+```{r}
+excel_data <- read_excel("laucnty11.xlsx", sheet = "laucnty11", col_names = TRUE)
+excel_data
+names(All_Ind_2019)
+```
+
+```{r}
+columns_of_interest2 <- c("Name", "Year", "Labor_Force")
+counties_of_interest2 <- 
+  "((Wyandotte|Johnson|Leavenworth|Atchison|Bourbon|Cherokee|Brown) County, KS|(Buchanan|Platte|Clay|Jackson|Cass|Bates|Vernon|Barton|Jasper|Newton) County, MO)"
+##############################################
+#Filtering columns and counties of interest ####
+##############################################
+#All_Ind_2023_f <- All_Ind_2023[
+#  str_detect(
+#    string = All_Ind_2023$area_title,
+#    pattern = counties_of_interest
+#  ), columns_of_interest]
+
+#mpg_adj <- filter(mpg, cyl > 6 & manufacturer == "audi")
+
+#All_Ind_2022_f <- filter(data = All_Ind_2022, "Name" & "Labor_Force")
+library(dplyr)
+
+all_industries_filtered <- new.env()
+
+all_industries_filtered$All_Ind_2022_f <- All_Ind_2022[
+  str_detect(
+    string = All_Ind_2021$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2021_f <- All_Ind_2021[
+  str_detect(
+    string = All_Ind_2021$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2020_f <- All_Ind_2020[
+  str_detect(
+    string = All_Ind_2020$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2019_f <- All_Ind_2019[
+  str_detect(
+    string = All_Ind_2019$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2018_f <- All_Ind_2018[
+  str_detect(
+    string = All_Ind_2018$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2017_f <- All_Ind_2017[
+  str_detect(
+    string = All_Ind_2017$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2016_f <- All_Ind_2016[
+  str_detect(
+    string = All_Ind_2016$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2015_f <- All_Ind_2015[
+  str_detect(
+    string = All_Ind_2015$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2014_f <- All_Ind_2014[
+  str_detect(
+    string = All_Ind_2014$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2013_f <- All_Ind_2013[
+  str_detect(
+    string = All_Ind_2013$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2012_f <- All_Ind_2012[
+  str_detect(
+    string = All_Ind_2012$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+all_industries_filtered$All_Ind_2011_f <- All_Ind_2011[
+  str_detect(
+    string = All_Ind_2011$Name,
+    pattern = counties_of_interest2
+  ), columns_of_interest2]
+
+```
+
+```{r}
+## ################################################# #
+## Combining employment for all years of interest ####
+## All employment; all industries ################## #
+## ################################################# #
+
+
+all_ind_empl_combined <-
+  all_industries_filtered$All_Ind_2011_f |>
+  add_row(all_industries_filtered$All_Ind_2012_f) |>
+  add_row(all_industries_filtered$All_Ind_2013_f) |>
+  add_row(all_industries_filtered$All_Ind_2014_f) |>
+  add_row(all_industries_filtered$All_Ind_2015_f) |>
+  add_row(all_industries_filtered$All_Ind_2016_f) |>
+  add_row(all_industries_filtered$All_Ind_2017_f) |>
+  add_row(all_industries_filtered$All_Ind_2018_f) |>
+  add_row(all_industries_filtered$All_Ind_2019_f) |>
+  add_row(all_industries_filtered$All_Ind_2020_f) |>
+  add_row(all_industries_filtered$All_Ind_2021_f) |>
+  add_row(all_industries_filtered$All_Ind_2022_f) |>
+  add_row(all_industries_filtered$All_Ind_2023_f) 
+```
+
+```{r}
+all_ind_empl_combined
+```
+
+```{r}
+library(dplyr)
+# First, create a Year column in min_wage_limited_increase corresponding to the year from year_digit
+min_wage_limited_increase <- min_wage_limited_increase %>%
+  mutate(Year = as.integer(floor(year_digit)))  # Extracting the year part
+all_ind_empl_combined <- all_ind_empl_combined %>%
+  mutate(Year = as.integer(Year))
+
+combined_data <- left_join(min_wage_limited_increase, all_ind_empl_combined, by = c("area_title" = "Name", "Year"))
+
+```
+# Fill missing Labor_Force values with yearly totals
+
+combined_data <- combined_data %>%
+  group_by(area_title, Year) %>%
+  mutate(Labor_Force = all_ind_empl_combined$Labor_Force) %>%
+  ungroup()
+
+combined_data
+
+```
+
+
+# Sort by area_title and year_digit if needed
+combined_data <- combined_data %>%
+  arrange(area_title, year_digit)
+
+combined_data
